@@ -28,9 +28,9 @@ void saveData()
 	file = NULL;
 }
 
-void game_start(uint16_t maxY, uint16_t maxX)
+void game_start()
 {
-	//boot();
+	boot();
 	login();
 	initFilesystem();
 	initCommands();

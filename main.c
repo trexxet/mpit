@@ -1,16 +1,19 @@
 #include <stdint.h>
+#include <locale.h>
 #include <ncurses.h>
 
 #define STDSCR_FCOLOR COLOR_GREEN
 #define STDSCR_BCOLOR COLOR_BLACK
 #define STDSCR_COLORPAIR 1
 
-extern void game_start(uint16_t maxY, uint16_t maxX); //game.c
+uint16_t maxY, maxX;
+extern void game_start(); //game.c
 
-void init_ncurses(uint16_t *maxY, uint16_t *maxX)
+void init_ncurses()
 {
+	setlocale(LC_ALL, "");
 	initscr();
-	getmaxyx(stdscr, *maxY, *maxX);
+	getmaxyx(stdscr, maxY, maxX);
 	start_color();
 	cbreak();
 	noecho();
@@ -32,8 +35,7 @@ void finit()
 
 int main()
 {
-	uint16_t maxY, maxX;
-	init_ncurses(&maxY, &maxX);
+	init_ncurses();
 	init_window();
 
 	game_start(maxY, maxX);

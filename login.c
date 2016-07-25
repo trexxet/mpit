@@ -35,14 +35,14 @@ void login()
 	FILE *savefile = fopen(savefileName, "rb");
 	if (!savefile)
 	{
-		printw("Last login: NULL\n");
+		printw("Last login: NULL\n\n");
 		createNewUser();
 	}
 	else
 	{
 		loadSavedData();
 		strftime(strtime, 32, "%Y-%m-%d %H:%M:%S", localtime(&(playerData.lastLoggedTime)));
-		printw("Last login: %s\n", strtime);
+		printw("Last login: %s\n\n", strtime);
 	}
 	refresh();
 	time_t timer;
@@ -50,6 +50,4 @@ void login()
 	playerData.lastLoggedTime = timer;
 	saveData();
 	_sleep(500);
-	printw("Processing...\n");
-	_sleep(1000);
 }

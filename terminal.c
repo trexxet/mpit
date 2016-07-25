@@ -1,4 +1,5 @@
 #include <string.h>
+#include <wchar.h>
 #include "global.h"
 #include "filesystem.h"
 
@@ -13,19 +14,33 @@ extern void parseCommand(char *input);
 void boot()
 {
 	static char *onloadMsg[] = {
+		"                             ",
 		"Switching power on... ",
 		"Initializating core... ",
 		"Starting system... ",
 		"Connetcting to server... "
 	};
-	for (int i = 0; i < 4; i++)
+	#define LOGO_SIZEX 90
+	#define LOGO_SIZEY 17
+	extern uint16_t maxY, maxX;
+	FILE *logo = fopen("bootlogo", "r");
+	wchar_t buffer[LOGO_SIZEX + 2];
+	int i = 0;
+	while (fgetws(buffer, LOGO_SIZEX + 2, logo) && (i < LOGO_SIZEY))
 	{
-		printw("%s", onloadMsg[i]);
+		mvprintw((maxY - LOGO_SIZEY) / 2 + i, (maxX - LOGO_SIZEX) / 2,  "%ls\n", buffer);
 		refresh();
-		_sleep(500);
-		_BOLD(printw("DONE\n"));
+		i++;
+	}
+	fclose(logo);
+	#undef LOGO_SIZEX
+	#undef LOGO_SIZEY
+	for (int i = 1; i <= 4; i++)
+	{
+		mvprintw(maxY - 1, 0, "%s", onloadMsg[i]);
 		refresh();
 		_sleep(250);
+		mvprintw(maxY - 1, 0, "%s", onloadMsg[0]);
 	}
 	clear();
 }

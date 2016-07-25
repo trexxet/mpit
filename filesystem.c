@@ -21,7 +21,7 @@ void initFilesystem()
 	uint16_t newFileID = 1;
 	int16_t newDirID = 0;
 	FILE *fcont;
-	while (fgets(buffer, 256, fstruct) != NULL)
+	while (fgets(buffer, 256, fstruct))
 	{
 		if (buffer[gdStack.top] == '\t') 	//enters new dir
 			gdStack.top++;
