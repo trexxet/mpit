@@ -15,6 +15,7 @@ void init_ncurses()
 	initscr();
 	getmaxyx(stdscr, maxY, maxX);
 	start_color();
+	scrollok(stdscr, TRUE);
 	cbreak();
 	noecho();
 	keypad(stdscr, true);

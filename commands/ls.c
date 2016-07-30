@@ -6,7 +6,8 @@ void ls()
 		if (id > 0)
 			printw("%s\t", gfileTable[id - 1].name);
 		else
-			_BOLD(printw("%s\t", gdirTable[id].name));
+			_BOLD(printw("%s\t", gdirTable[0 - id].name));
 	}
 	printw("\n");
+	refresh();
 }

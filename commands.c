@@ -25,7 +25,7 @@ void initCommands()
 
 void parseCommand(char *input)
 {
-	uint8_t cmdFound;
+	uint8_t cmdFound = 0;
 	char *cmd = strtok(input, " ");
 	for (int i = 0; i < NUM_OF_CMDS; i++)
 		if (strcmp(cmd, cmds[i].name) == 0)
