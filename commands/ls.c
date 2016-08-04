@@ -1,8 +1,8 @@
 void ls()
 {
-	for (int i = 0; i < DIR_CURR.filenum; i++)
+	for (int i = 0; i < DIR_CURR.childnum; i++)
 	{
-		int16_t id = DIR_CURR.files[i];
+		int16_t id = DIR_CURR.childs[i];
 		if (id > 0)
 			printw("%s\t", gfileTable[id - 1].name);
 		else

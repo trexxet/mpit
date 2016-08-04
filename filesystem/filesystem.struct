@@ -1,6 +1,13 @@
-/home
-	file1
-	/dir1
-		file2
+//
+	/home/
+		file1
+		/dir1/
+			file2
+			\
+		\
+	\
+	/govno/
+		/dir2/
+			\
 		\
 	\

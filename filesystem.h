@@ -9,15 +9,16 @@
 
 typedef struct {
 	char name[MAX_NAME_LEN];
-	char fname[MAX_NAME_LEN + 11];	 // + filesystem/
 	char cont[MAX_FILE_LEN];
+	int16_t parent;
 	uint16_t id;
 } gfile;
 
 typedef struct {
 	char name[MAX_NAME_LEN];
-	int16_t files[MAX_FILE_DIR];
-	uint8_t filenum;
+	int16_t parent;
+	int16_t childs[MAX_FILE_DIR];
+	uint8_t childnum;
 	int16_t id;
 } gdir;
 

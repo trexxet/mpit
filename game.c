@@ -28,7 +28,7 @@ void saveData()
 	file = NULL;
 }
 
-void game_start()
+void gameStart()
 {
 	boot();
 	login();

@@ -7,9 +7,9 @@
 #define STDSCR_COLORPAIR 1
 
 uint16_t maxY, maxX;
-extern void game_start(); //game.c
+extern void gameStart(); //game.c
 
-void init_ncurses()
+void initNcurses()
 {
 	setlocale(LC_ALL, "");
 	initscr();
@@ -21,7 +21,7 @@ void init_ncurses()
 	keypad(stdscr, true);
 }
 
-void init_window()
+void initWindow()
 {
 	init_pair(STDSCR_COLORPAIR, STDSCR_FCOLOR, STDSCR_BCOLOR);
 	wbkgd(stdscr, COLOR_PAIR(STDSCR_COLORPAIR));
@@ -36,10 +36,10 @@ void finit()
 
 int main()
 {
-	init_ncurses();
-	init_window();
+	initNcurses();
+	initWindow();
 
-	game_start(maxY, maxX);
+	gameStart(maxY, maxX);
 
 	finit();
 	return 0;
