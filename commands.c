@@ -10,11 +10,10 @@ typedef struct {
 } cmd;
 
 //Commands interface
-#define DIR_CURR gdirTable[0 - playerData.dir]
+#define DIR_CURR gfTable[playerData.dir]
 extern playerData_t playerData;
-extern gdir gdirTable[MAX_DIRS];
-extern gfile gfileTable[MAX_FILES];
-extern int dirExists(char *name, int16_t *id);	/* If directory %name% exists, returns 1 and id, 
+extern gfile gfTable[MAX_FILES];
+extern int exists(char *name, uint16_t *id);	/* If  %name% exists, returns 1 and id, 
 						   otherwise returns 0. Uses strtok! */
 #include "commands/include_cmds.h"
 

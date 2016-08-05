@@ -5,9 +5,8 @@
 
 extern playerData_t playerData;
 extern char username[];
-extern gdir gdirTable[MAX_DIRS];
-extern gfile gfileTable[MAX_FILES];
-#define DIR_CURR gdirTable[0 - playerData.dir]
+extern gfile gfTable[MAX_FILES];
+#define DIR_CURR gfTable[playerData.dir]
 
 extern void parseCommand(char *input);
 
@@ -45,43 +44,50 @@ void boot()
 	clear();
 }
 
-int dirExists(char *name, int16_t *id)	//if directory %name% exists, returns 1 and id, otherwise returns 0
+int exists(char *name, uint16_t *id)	//if %name% exists, returns 1 and id, otherwise returns 0
 {
-	#define DIR_SEARCH gdirTable[searchDirID]
-	int16_t searchDirID = -playerData.dir;
+	#define DIR_SEARCH gfTable[searchDirID]
+	int16_t searchDirID = playerData.dir;
 	/* Initially I wrote this:
 	 * 	char *searchedName = strtok(name, "/");
 	 * However, I discovered that searchedName has the same addres as name. Yes, it's rather obvious.
 	 * But not for me. So strcat(searchedName, "/") made some shit with name. */
-	char searchedName[MAX_FILE_LEN] = {0}, lastName[MAX_NAME_LEN] = {0}, *tokPointer;
+	char searchedName[MAX_FILE_LEN] = {0}, *tokPointer;
 	int foundFlag;
 	if (tokPointer = strtok(name, "/"))
 		strcpy(searchedName, tokPointer);
 	while (tokPointer)
 	{
-		strcat(searchedName, "/");
 		foundFlag = 0;
-		if (strcmp(searchedName, "../") == 0)
+		if (strcmp(searchedName, "..") == 0)
 		{
 			foundFlag = 1;
-			searchDirID = -(DIR_SEARCH.parent);
-			strcpy(lastName, DIR_SEARCH.name);
+			searchDirID = DIR_SEARCH.parent;
 		}
 		else
-			for (int i = 0; i < DIR_SEARCH.childnum; i++)
-				if (strcmp(searchedName, gdirTable[-(DIR_SEARCH.childs[i])].name) == 0)
+		{
+			for (int i = 0; i < DIR_SEARCH.childnum; i++)	// scan for files
+				if (strcmp(searchedName, gfTable[DIR_SEARCH.childs[i]].name) == 0)
 				{
 					foundFlag = 1;
-					searchDirID = -(DIR_SEARCH.childs[i]);
-					strcpy(lastName, searchedName);
+					*id = DIR_SEARCH.childs[i];
 					break;
 				}
+			strcat(searchedName, "/");
+			for (int i = 0; i < DIR_SEARCH.childnum; i++)	//scan for directories
+				if (strcmp(searchedName, gfTable[DIR_SEARCH.childs[i]].name) == 0)
+				{
+					foundFlag = 1;
+					searchDirID = DIR_SEARCH.childs[i];
+					*id = DIR_SEARCH.id;
+					break;
+				}
+		}
 		if (tokPointer = strtok(NULL, "/"))
 			strcpy(searchedName, tokPointer);
 	}
-	if ((strcmp(lastName, DIR_SEARCH.name) == 0) && foundFlag)
+	if (foundFlag)
 	{
-		*id = DIR_SEARCH.id;
 		return 1;
 	}
 	return 0;

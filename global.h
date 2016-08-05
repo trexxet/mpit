@@ -17,7 +17,7 @@
 
 typedef struct {
 	time_t lastLoggedTime;
-	int16_t dir;
+	uint16_t dir;
 	uint8_t stage;
 } playerData_t;
 
