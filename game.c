@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "global.h"
 
 playerData_t playerData;
@@ -15,16 +13,26 @@ extern void terminal(int *stop);
 void loadSavedData()
 {
 	FILE *file = fopen(savefileName, "rb");
-	fread(&playerData, sizeof(playerData_t), 1, file);
-	fclose(file);
+	if (file)
+	{
+		fread(&playerData, sizeof(playerData_t), 1, file);
+		fclose(file);
+	}
+	else
+		printw("External error in loadSavedData():\n%s\n", strerror(errno));
 	file = NULL;
 }
 
 void saveData()
 {
 	FILE *file = fopen(savefileName, "wb");
-	fwrite(&playerData, sizeof(playerData_t), 1, file);
-	fclose(file);
+	if (file)
+	{
+		fwrite(&playerData, sizeof(playerData_t), 1, file);
+		fclose(file);
+	}
+	else
+		printw("External error in saveData():\n%s\n", strerror(errno));
 	file = NULL;
 }
 

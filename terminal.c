@@ -1,4 +1,3 @@
-#include <string.h>
 #include <wchar.h>
 #include "global.h"
 #include "filesystem.h"
@@ -22,7 +21,9 @@ void boot()
 	#define LOGO_SIZEX 90
 	#define LOGO_SIZEY 17
 	extern uint16_t maxY, maxX;
-	FILE *logo = fopen("bootlogo", "r");
+	char flogo[128];
+	sprintf(flogo, "%s%s", getenv("HOME"), "/.mpit/bootlogo"); 
+	FILE *logo = fopen(flogo, "r");
 	wchar_t buffer[LOGO_SIZEX + 2];
 	int i = 0;
 	while (fgetws(buffer, LOGO_SIZEX + 2, logo) && (i < LOGO_SIZEY))

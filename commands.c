@@ -1,4 +1,3 @@
-#include <string.h>
 #include "global.h"
 #include "filesystem.h"
 

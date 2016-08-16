@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <string.h>
-
 #include "global.h"
 
 extern void loadSavedData();
@@ -30,8 +27,7 @@ void login()
 
 
 	char strtime[32];
-	strcpy(savefileName, username);
-	strcat(savefileName, ".save");
+	sprintf(savefileName, "%s%s%s%s", DATA_DIR, SAVES_DIR, username, ".save");
 	FILE *savefile = fopen(savefileName, "rb");
 	if (!savefile)
 	{

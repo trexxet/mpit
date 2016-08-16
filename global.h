@@ -2,9 +2,15 @@
 #define GLOBAL_H_
 
 #include <ncurses.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <errno.h>
+
+#include "config.h"
 
 #define _sleep(tm) usleep(tm * 1000)
 #define _BOLD(fnc)	{ attron(A_BOLD); \
