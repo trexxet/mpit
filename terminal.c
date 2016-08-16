@@ -13,7 +13,7 @@ extern void parseCommand(char *input);
 void boot()
 {
 	static char *onloadMsg[] = {
-		"                             ",
+		"                         ",
 		"Switching power on... ",
 		"Initializating core... ",
 		"Starting system... ",
@@ -44,68 +44,73 @@ void boot()
 	clear();
 }
 
-int exists(char *name, uint16_t *id)	//if %name% exists, returns 1 and id, otherwise returns 0
+void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd)
 {
-	#define DIR_SEARCH gfTable[searchDirID]
-	int16_t searchDirID = playerData.dir;
-	/* Initially I wrote this:
-	 * 	char *searchedName = strtok(name, "/");
-	 * However, I discovered that searchedName has the same addres as name. Yes, it's rather obvious.
-	 * But not for me. So strcat(searchedName, "/") made some shit with name. */
-	char searchedName[MAX_FILE_LEN] = {0}, *tokPointer;
-	int foundFlag;
-	if (tokPointer = strtok(name, "/"))
-		strcpy(searchedName, tokPointer);
-	while (tokPointer)
-	{
-		foundFlag = 0;
-		if (strcmp(searchedName, "..") == 0)
-		{
-			foundFlag = 1;
-			searchDirID = DIR_SEARCH.parent;
-		}
-		else
-		{
-			for (int i = 0; i < DIR_SEARCH.childnum; i++)	// scan for files
-				if (strcmp(searchedName, gfTable[DIR_SEARCH.childs[i]].name) == 0)
-				{
-					foundFlag = 1;
-					*id = DIR_SEARCH.childs[i];
-					break;
-				}
-			strcat(searchedName, "/");
-			for (int i = 0; i < DIR_SEARCH.childnum; i++)	//scan for directories
-				if (strcmp(searchedName, gfTable[DIR_SEARCH.childs[i]].name) == 0)
-				{
-					foundFlag = 1;
-					searchDirID = DIR_SEARCH.childs[i];
-					*id = DIR_SEARCH.id;
-					break;
-				}
-		}
-		if (tokPointer = strtok(NULL, "/"))
-			strcpy(searchedName, tokPointer);
-	}
-	if (foundFlag)
-	{
-		return 1;
-	}
-	return 0;
-	#undef DIR_SEARCH
+	move(cy, offset);
+	clrtoeol();
+	mvprintw(cy, offset, "%s", cmd);
+	move(cy, cx);
 }
 
 void terminal(int *stop)
 {
+	noecho();
 	printw("%s@MPIT:%s$ ", username, DIR_CURR.name);
-	char input[128] = {0};
-	_CURS_ON();
-	getstr(input);
-	_CURS_OFF();
-	if ((strcmp(input, "quit") == 0) || (strcmp(input, "exit") == 0))
+	uint16_t cy, cx, offset = 8 + strlen(username) + strlen(DIR_CURR.name);	//8 == strlen("@MPIT:$ ")
+	int input = 0;
+	char cmd[128] = {0};
+	curs_set(1);
+	while (input != '\n')
+	{
+		getyx(stdscr, cy, cx);
+		switch (input = getch())
+		{
+			case KEY_LEFT:
+				if (cx > offset)
+					move(cy, cx - 1);
+				break;
+			case KEY_RIGHT:
+				if (cx < (offset + strlen(cmd)))
+					move(cy, cx + 1);
+				break;
+			case KEY_DC:
+				delch();
+				memmove(cmd + cx - offset, cmd + cx - offset + 1, strlen(cmd) - cx + offset);
+				redrawInput(cy, cx, offset, cmd);
+				break;
+			case KEY_BACKSPACE:
+				if (cx > offset)
+				{
+					mvdelch(cy, cx - 1);
+					memmove(cmd + cx - offset - 1, cmd + cx - offset, strlen(cmd) - cx + offset);
+					cmd[strlen(cmd) - 1] = 0;
+					redrawInput(cy, cx, offset, cmd);
+					move(cy, cx - 1);
+				}
+				break;
+			case KEY_UP:
+				break;
+			case KEY_DOWN:
+				break;
+			case '\t':
+				break;
+			case '\n':
+				break;
+			default:
+				memmove(cmd + cx - offset + 1, cmd + cx - offset, strlen(cmd) - cx + offset);
+				cmd[cx - offset] = input;
+				redrawInput(cy, cx, offset, cmd);
+				move(cy, cx + 1);
+				break;
+		}
+	}
+	curs_set(0);
+	addch('\n');
+	if ((strcmp(cmd, "quit") == 0) || (strcmp(cmd, "exit") == 0))
 	{
 		*stop = 1;
 		return;
 	}
-	if (input[0] != 0)
-		parseCommand(input);
+	if (cmd[0] != 0)
+		parseCommand(cmd);
 }
