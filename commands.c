@@ -1,26 +1,23 @@
 #include "global.h"
 #include "filesystem.h"
+#include "commands.h"
 
-typedef void (*cmdFunc_t)();
-
-typedef struct {
-	char name[32];
-	cmdFunc_t func;
-} cmd;
+uint16_t numofCommands;
 
 //Commands interface
 #define DIR_CURR gfTable[playerData.dir]
 extern playerData_t playerData;
-extern gfile gfTable[MAX_FILES];
+extern gfile_t gfTable[];
 int exists(char *name, uint16_t *id);	/* If  %name% exists, returns 1 and id, 
 					   otherwise returns 0. Uses strtok! */
 #include "commands/include_cmds.h"
 
-cmd cmds[NUM_OF_CMDS];
+cmd_t cmds[NUM_OF_CMDS];
 
 void initCommands()
 {
 	#include "commands/init_list.c"
+	numofCommands = NUM_OF_CMDS;
 }
 
 void parseCommand(char *input)

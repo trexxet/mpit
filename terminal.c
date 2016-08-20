@@ -1,10 +1,11 @@
 #include <wchar.h>
 #include "global.h"
 #include "filesystem.h"
+#include "commands.h"
 
 extern playerData_t playerData;
 extern char username[];
-extern gfile gfTable[MAX_FILES];
+extern gfile_t gfTable[];
 #define DIR_CURR gfTable[playerData.dir]
 
 extern void parseCommand(char *input);
@@ -18,11 +19,9 @@ void boot()
 		"Starting system... ",
 		"Connetcting to server... "
 	};
-	#define LOGO_SIZEX 90
-	#define LOGO_SIZEY 17
 	extern uint16_t maxY, maxX;
 	char flogo[128];
-	sprintf(flogo, "%s%s", getenv("HOME"), "/.mpit/bootlogo"); 
+	sprintf(flogo, "%s%s", HOME_DIR, LOGO_FILE); 
 	FILE *logo = fopen(flogo, "r");
 	wchar_t buffer[LOGO_SIZEX + 2];
 	int i = 0;
@@ -33,8 +32,6 @@ void boot()
 		i++;
 	}
 	fclose(logo);
-	#undef LOGO_SIZEX
-	#undef LOGO_SIZEY
 	for (int i = 1; i <= 4; i++)
 	{
 		mvprintw(maxY - 1, 0, "%s", onloadMsg[i]);
@@ -43,6 +40,26 @@ void boot()
 		mvprintw(maxY - 1, 0, "%s", onloadMsg[0]);
 	}
 	clear();
+}
+
+uint16_t autocomplete(char *cmd, char buff[][MAX_INPUT_LENGTH], uint8_t tabKeystroke) // Returns number of variants
+{
+	extern uint16_t numofCommands;
+	extern cmd_t cmds[];
+	uint16_t variants = 0;
+	// Clear buffer
+	for (int i = 0; i < MAX_SIZE_OF_AUTOCOMPLETE_BUFFER; i++)
+		buff[i][0] = 0;
+	// Search for commands
+	for (int i = 0; i < numofCommands; i++)
+		if (strstr(cmds[i].name, cmd) == cmds[i].name)
+		{
+			sprintf(buff[variants], "%s ", cmds[i].name);
+			variants++;
+		}
+	// Search for files
+	// WOULD BE LATER
+	return variants;
 }
 
 void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd)
@@ -57,10 +74,17 @@ void terminal(int *stop)
 {
 	noecho();
 	printw("%s@MPIT:%s$ ", username, DIR_CURR.name);
+
 	uint16_t cy, cx, offset = 8 + strlen(username) + strlen(DIR_CURR.name);	//8 == strlen("@MPIT:$ ")
-	int input = 0;
-	char cmd[128] = {0};
+	int input = 0;				// input = getch()
+	char cmd[MAX_INPUT_LENGTH] = {0};	// input string
+	// Autocompletion variables
+	uint8_t tabKeystroke = 0;		// if Tab pressed once or twice
+	char autocompBuff[MAX_SIZE_OF_AUTOCOMPLETE_BUFFER][MAX_INPUT_LENGTH] = {0}; //buffer for autocompletion
+	uint16_t variants = 0;
+
 	curs_set(1);
+	#define CURS_POS (cx - offset)
 	while (input != '\n')
 	{
 		getyx(stdscr, cy, cx);
@@ -76,14 +100,14 @@ void terminal(int *stop)
 				break;
 			case KEY_DC:
 				delch();
-				memmove(cmd + cx - offset, cmd + cx - offset + 1, strlen(cmd) - cx + offset);
+				memmove(cmd + CURS_POS, cmd + CURS_POS + 1, strlen(cmd) - CURS_POS);
 				redrawInput(cy, cx, offset, cmd);
 				break;
 			case KEY_BACKSPACE:
 				if (cx > offset)
 				{
 					mvdelch(cy, cx - 1);
-					memmove(cmd + cx - offset - 1, cmd + cx - offset, strlen(cmd) - cx + offset);
+					memmove(cmd + CURS_POS - 1, cmd + CURS_POS, strlen(cmd) - CURS_POS);
 					cmd[strlen(cmd) - 1] = 0;
 					redrawInput(cy, cx, offset, cmd);
 					move(cy, cx - 1);
@@ -94,19 +118,41 @@ void terminal(int *stop)
 			case KEY_DOWN:
 				break;
 			case '\t':
+				if (!tabKeystroke)
+				{
+					variants = autocomplete(cmd, autocompBuff, tabKeystroke);
+					if (variants == 1)
+					{
+						strcpy(cmd, autocompBuff[0]);
+						redrawInput(cy, offset + strlen(cmd), offset, cmd);
+					}
+					else
+						tabKeystroke = 1;
+				}
+				else
+				{
+					for (int i = 0; i < variants; i++)
+						mvprintw(cy + i + 1, 0, "%s", autocompBuff[i]);
+					mvprintw(cy + variants + 1, 0, "%s@MPIT:%s$ ", username, DIR_CURR.name);
+					redrawInput(cy + variants + 1, offset + strlen(cmd), offset, cmd);
+				}
 				break;
 			case '\n':
+				tabKeystroke = 0;
 				break;
 			default:
-				memmove(cmd + cx - offset + 1, cmd + cx - offset, strlen(cmd) - cx + offset);
-				cmd[cx - offset] = input;
+				memmove(cmd + CURS_POS + 1, cmd + CURS_POS, strlen(cmd) - cx + offset);
+				cmd[CURS_POS] = input;
 				redrawInput(cy, cx, offset, cmd);
 				move(cy, cx + 1);
+				tabKeystroke = 0;
 				break;
 		}
 	}
+	#undef CURS_POS
 	curs_set(0);
-	addch('\n');
+	getyx(stdscr, cy, cx);
+	move(cy + 1, 0);
 	if ((strcmp(cmd, "quit") == 0) || (strcmp(cmd, "exit") == 0))
 	{
 		*stop = 1;

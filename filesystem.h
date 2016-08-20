@@ -9,7 +9,7 @@ typedef struct {
 	int16_t parent;
 	int16_t childs[MAX_FILE_DIR];
 	uint8_t childnum;
-} gfile;
+} gfile_t;
 
 typedef struct {
 	uint16_t IDs[128];
