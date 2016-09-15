@@ -4,16 +4,17 @@ TARGET = mpit
 
 CSRC = main.c game.c login.c filesystem.c commands.c terminal.c
 PYSRC = commands/generate_includes.py
-CFLAGS = -g -lncursesw
+CFLAGS = -g --std=gnu11
+LDLIBS = -lncursesw
 
-BIN = /usr/local/bin
-DATA = ~/.mpit
+BIN = /usr/local/games
+DATA = /usr/local/games/mpit_data
 FILESYS = $(DATA)/filesystem
 SAVES = $(DATA)/saves
 
 all:
 	$(PYTHON) $(PYSRC)
-	$(CC) $(CSRC) -o $(TARGET) $(CFLAGS)
+	$(CC) $(CSRC) -o $(TARGET) $(CFLAGS) $(LDLIBS)
 
 install:
 	install $(TARGET) $(BIN)

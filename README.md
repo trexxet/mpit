@@ -10,7 +10,7 @@ Game emulates it's own terminal, however, I'm trying to make it similar to Unix'
 
 # Installing
 
-Make sure you have ```gcc```, ```python3``` and ```libncursesw5-dev``` packages. Compile and install it: 
+Make sure you have ```gcc```, ```python3```, ```libncurses5-dev``` and ```libncursesw5-dev``` packages. Compile and install it: 
 ```
 $ make
 # make install

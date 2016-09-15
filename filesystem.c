@@ -6,7 +6,7 @@ gfile_t gfTable[MAX_FILES];
 void initFilesystem()
 {
 	char fstructName[MAX_NAME_LEN] = {0};
-	sprintf(fstructName, "%s%s%s", HOME_DIR, FILESYS_DIR, "filesystem.struct");
+	sprintf(fstructName, "%s%s%s", DATA_DIR, FILESYS_DIR, "filesystem.struct");
 	FILE *fstruct = fopen(fstructName, "r");
 	if (fstruct)
 	{
@@ -48,7 +48,7 @@ void initFilesystem()
 				FILE_CURR.isdir = 0;
 				strcpy(FILE_CURR.name, buffer + gdStack.top); // + '\t'
 				FILE_CURR.name[strlen(FILE_CURR.name) - 1] = 0; //cut \n
-				sprintf(fname, "%s%s%s", HOME_DIR, FILESYS_DIR, FILE_CURR.name);
+				sprintf(fname, "%s%s%s", DATA_DIR, FILESYS_DIR, FILE_CURR.name);
 				if (fcontent = fopen(fname, "r"))
 				{
 					fread(FILE_CURR.content, 1, MAX_FILE_LEN, fcontent);

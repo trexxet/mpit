@@ -1,5 +1,4 @@
-#ifndef FILESYSTEM_H_
-#define FILESYSTEM_H_
+#pragma once
 
 typedef struct {
 	char name[MAX_NAME_LEN];
@@ -15,5 +14,3 @@ typedef struct {
 	uint16_t IDs[128];
 	uint8_t top;
 } gdirIDStack;
-
-#endif

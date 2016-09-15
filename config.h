@@ -1,8 +1,8 @@
 // Data storage
 
-#define HOME_DIR getenv("HOME")
-#define FILESYS_DIR "/.mpit/filesystem/"
-#define SAVES_DIR "/.mpit/saves/"
+#define DATA_DIR "/usr/local/games/mpit_data/"
+#define FILESYS_DIR "filesystem/"
+#define SAVES_DIR "saves/"
 
 // Filesystem
 
@@ -14,7 +14,7 @@
 
 // Boot logo
 
-#define LOGO_FILE "/.mpit/bootlogo"
+#define LOGO_FILE "bootlogo"
 #define LOGO_SIZEX 90
 #define LOGO_SIZEY 17
 

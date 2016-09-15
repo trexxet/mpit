@@ -21,7 +21,7 @@ void boot()
 	};
 	extern uint16_t maxY, maxX;
 	char flogo[128];
-	sprintf(flogo, "%s%s", HOME_DIR, LOGO_FILE); 
+	sprintf(flogo, "%s%s", DATA_DIR, LOGO_FILE); 
 	FILE *logo = fopen(flogo, "r");
 	wchar_t buffer[LOGO_SIZEX + 2];
 	int i = 0;

@@ -1,7 +1,10 @@
 CURRENT DEVELOPMENT:
 Commands history by up/down arrows
+quit/exit as program
+make code look like modern C code
 
-IMPORTANT:
+IMPORTANT BUGS:
 ../ returns to root
-NOT IMPORTANT:
-make quit/exit as program
+
+MINOR BUGS:
+didn't notice

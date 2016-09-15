@@ -27,7 +27,7 @@ void login()
 
 
 	char strtime[32];
-	sprintf(savefileName, "%s%s%s%s", HOME_DIR, SAVES_DIR, username, ".save");
+	sprintf(savefileName, "%s%s%s%s", DATA_DIR, SAVES_DIR, username, ".save");
 	FILE *savefile = fopen(savefileName, "rb");
 	if (!savefile)
 	{

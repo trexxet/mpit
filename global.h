@@ -1,5 +1,4 @@
-#ifndef GLOBAL_H_
-#define GLOBAL_H_
+#pragma once
 
 #include <ncurses.h>
 #include <stdio.h>
@@ -26,5 +25,3 @@ typedef struct {
 	uint16_t dir;
 	uint8_t stage;
 } playerData_t;
-
-#endif
