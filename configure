@@ -1,0 +1,15 @@
+#!/bin/bash
+
+type python3 &> /dev/null
+if [[ `echo $?` = 1 ]]; then
+	echo 'python3 is not found, r u serious?' && exit 1
+fi
+find /usr/include/ncurses.h &> /dev/null
+if [[ `echo $?` = 1 ]]; then
+	echo 'ncurses develop files are not found, terminating.' && exit 1
+fi
+find /usr/include/ncursesw/ &> /dev/null
+if [[ `echo $?` = 1 ]]; then
+	echo 'ncursesw develop files are not found, terminating.' && exit 1
+fi
+echo 'All OK, now go for make' && exit 0

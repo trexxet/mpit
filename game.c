@@ -7,7 +7,7 @@ char savefileName[256];
 extern void boot();
 extern void login();
 extern void initFilesystem();
-extern void initCommands();
+extern void initShell();
 extern void terminal(int *stop);
 
 void loadSavedData()
@@ -41,7 +41,7 @@ void gameStart()
 	boot();
 	login();
 	initFilesystem();
-	initCommands();
+	initShell();
 	int stop = 0;
 	while (!stop)
 		terminal(&stop);

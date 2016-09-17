@@ -1,6 +1,6 @@
 #include "global.h"
 #include "filesystem.h"
-#include "commands.h"
+#include "shell.h"
 
 uint16_t numofCommands;
 
@@ -8,13 +8,12 @@ uint16_t numofCommands;
 #define DIR_CURR gfTable[playerData.dir]
 extern playerData_t playerData;
 extern gfile_t gfTable[];
-int exists(char *name, uint16_t *id);	/* If  %name% exists, returns 1 and id, 
-					   otherwise returns 0. Uses strtok! */
+int exists(char *name, uint16_t *id);	/* If  %name% exists, returns 1 and id, otherwise returns 0. */
 #include "commands/include_cmds.h"
 
 cmd_t cmds[NUM_OF_CMDS];
 
-void initCommands()
+void initShell()
 {
 	#include "commands/init_list.c"
 	numofCommands = NUM_OF_CMDS;
@@ -42,13 +41,12 @@ int exists(char *name, uint16_t *id)	//if %name% exists, returns 1 and id, other
 	/* Initially I wrote this:
 	 * 	char *searchedName = strtok(name, "/");
 	 * However, I discovered that searchedName has the same addres as name. Yes, it's rather obvious.
-	 * But not for me. So strcat(searchedName, "/") made some shit with name. */
-	char searchedName[MAX_FILE_LEN] = {0}, *tokPointer;
+	 * But not for me. So strcat(searchedName, "/") made some shit with name. I love strings in C.*/
+	char searchedName[MAX_FILE_LEN] = {0}, *tokPointer = NULL, *saveptr;
 	int foundFlag;
-	if (tokPointer = strtok(name, "/"))
-		strcpy(searchedName, tokPointer);
-	while (tokPointer)
+	while (tokPointer = strtok_r(!tokPointer ? name : NULL, "/", &saveptr))
 	{
+		strcpy(searchedName, tokPointer);
 		foundFlag = 0;
 		if (strcmp(searchedName, "..") == 0)
 		{
@@ -74,8 +72,6 @@ int exists(char *name, uint16_t *id)	//if %name% exists, returns 1 and id, other
 					break;
 				}
 		}
-		if (tokPointer = strtok(NULL, "/"))
-			strcpy(searchedName, tokPointer);
 	}
 	return foundFlag;
 	#undef DIR_SEARCH

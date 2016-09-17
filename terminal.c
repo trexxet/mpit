@@ -1,7 +1,7 @@
 #include <wchar.h>
 #include "global.h"
 #include "filesystem.h"
-#include "commands.h"
+#include "shell.h"
 
 extern playerData_t playerData;
 extern char username[];
