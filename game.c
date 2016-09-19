@@ -8,7 +8,7 @@ extern void boot();
 extern void login();
 extern void initFilesystem();
 extern void initShell();
-extern void terminal(int *stop);
+extern void getCommand(int *stop);
 
 void loadSavedData()
 {
@@ -44,5 +44,5 @@ void gameStart()
 	initShell();
 	int stop = 0;
 	while (!stop)
-		terminal(&stop);
+		getCommand(&stop);
 }

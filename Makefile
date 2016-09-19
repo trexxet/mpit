@@ -2,7 +2,7 @@ CC = gcc
 PYTHON = python3
 TARGET = mpit
 
-CSRC = main.c game.c login.c filesystem.c shell.c terminal.c
+CSRC = main.c game.c login.c filesystem.c shell.c
 PYSRC = commands/generate_includes.py
 CFLAGS = -g -O0 --std=gnu11
 LDLIBS = -lncursesw
