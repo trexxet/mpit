@@ -9,6 +9,7 @@ typedef struct {
 } cmd_t;
 
 //Commands interface
+uint8_t stop;				// Stop signal
 #define DIR_CURR gfTable[playerData.dir]
 extern playerData_t playerData;		// Player data
 extern gfile_t gfTable[];		// Filetable
@@ -77,7 +78,7 @@ void parseCommand(char *input);
 void autocomplete(char *cmd, autocompletionData_t* acData);
 void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd);
 
-void getCommand(int *stop)
+void getCommand()
 {
 	extern char username[];
 	noecho();
@@ -127,6 +128,7 @@ void getCommand(int *stop)
 				if (!acData.tabKeystroke)
 				{
 					autocomplete(cmd, &acData);
+					// if there is only one mathing variant, then apply it
 					if (acData.variants == 1)
 					{
 						strcpy(cmd, acData.buffer[0]);
@@ -135,6 +137,8 @@ void getCommand(int *stop)
 					else
 						acData.tabKeystroke = 1;
 				}
+				// if there are more than one matching variant and Tab pressed twice, 
+				// then print all matching variants
 				else
 				{
 					for (int i = 0; i < acData.variants; i++)
@@ -143,8 +147,9 @@ void getCommand(int *stop)
 						getyx(stdscr, cy, cx);
 						mvprintw(cy , 0, "%s", acData.buffer[i]);
 					}
-					mvprintw(cy + 1, 0, "%s@MPIT:%s$ ", username, DIR_CURR.name);
-					redrawInput(cy + 1, offset + strlen(cmd), offset, cmd);
+					printw("\n");
+					mvprintw(cy, 0, "%s@MPIT:%s$ ", username, DIR_CURR.name);
+					redrawInput(cy, offset + strlen(cmd), offset, cmd);
 				}
 				break;
 			case '\n':
@@ -162,13 +167,6 @@ void getCommand(int *stop)
 	}
 	#undef CURS_POS
 	curs_set(0);
-	//Move for next char
-	getyx(stdscr, cy, cx);
-	if ((strcmp(cmd, "quit") == 0) || (strcmp(cmd, "exit") == 0))
-	{
-		*stop = 1;
-		return;
-	}
 	if (cmd[0] != 0)
 		parseCommand(cmd);
 }

@@ -1,4 +1,5 @@
+#include "cat.c"
 #include "cd.c"
 #include "ls.c"
-#include "cat.c"
-#define NUM_OF_CMDS 3
+#include "quit.c"
+#define NUM_OF_CMDS 4

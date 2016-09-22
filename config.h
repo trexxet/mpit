@@ -8,9 +8,9 @@
 
 #define MAX_DIRS 1024
 #define MAX_FILES 1024
-#define MAX_NAME_LEN 64
+#define MAX_NAME_LEN 64		//
 #define MAX_FILE_LEN 2048	// in bytes
-#define MAX_FILE_DIR 32
+#define MAX_FILE_DIR 32		//
 
 // Boot logo
 

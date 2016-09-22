@@ -1,7 +1,6 @@
 CURRENT DEVELOPMENT:
-Merging shell.c and terminal.c
 Commands history by up/down arrows
-quit/exit as program
+aliases
 make code look like modern C code
 
 IMPORTANT BUGS:

@@ -4,12 +4,6 @@ playerData_t playerData;
 char username[256];
 char savefileName[256];
 
-extern void boot();
-extern void login();
-extern void initFilesystem();
-extern void initShell();
-extern void getCommand(int *stop);
-
 void loadSavedData()
 {
 	FILE *file = fopen(savefileName, "rb");
@@ -38,11 +32,17 @@ void saveData()
 
 void gameStart()
 {
+	extern void boot();
 	boot();
+	extern void login();
 	login();
+	extern void initFilesystem();
 	initFilesystem();
+	extern void initShell();
 	initShell();
-	int stop = 0;
+	extern uint8_t stop;
+	stop = 0;
+	extern void getCommand();
 	while (!stop)
-		getCommand(&stop);
+		getCommand();
 }
