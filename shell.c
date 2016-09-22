@@ -63,9 +63,19 @@ int exists(char *name, uint16_t *id)	//if %name% exists, returns 1 and id, other
 
 // COMMAND LINE FUNCTIONS
 
+typedef struct 
+{
+	// If Tab pressed once or twice
+	int8_t tabKeystroke;
+	// Buffer for autocompletion
+	char buffer[MAX_SIZE_OF_AUTOCOMPLETE_BUFFER][MAX_INPUT_LENGTH];
+	// Number of matching variants
+	uint16_t variants;
+} autocompletionData_t;
+
 void parseCommand(char *input);
+void autocomplete(char *cmd, autocompletionData_t* acData);
 void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd);
-uint16_t autocomplete(char *cmd, char buff[][MAX_INPUT_LENGTH], uint8_t tabKeystroke); // Returns number of variants
 
 void getCommand(int *stop)
 {
@@ -74,19 +84,17 @@ void getCommand(int *stop)
 	printw("%s@MPIT:%s$ ", username, DIR_CURR.name);
 
 	uint16_t cy, cx, offset = 8 + strlen(username) + strlen(DIR_CURR.name);	//8 == strlen("@MPIT:$ ")
-	int input = 0;				// input = getch()
-	char cmd[MAX_INPUT_LENGTH] = {0};	// input string
-	// Autocompletion variables
-	uint8_t tabKeystroke = 0;		// if Tab pressed once or twice
-	char autocompBuff[MAX_SIZE_OF_AUTOCOMPLETE_BUFFER][MAX_INPUT_LENGTH] = {0}; //buffer for autocompletion
-	uint16_t variants = 0;
+	int inputChar = 0;			// inputChar = getch()
+	char cmd[MAX_INPUT_LENGTH] = {};	// input string
+	autocompletionData_t acData = {};
 
 	curs_set(1);
+	// Getting char
 	#define CURS_POS (cx - offset)
-	while (input != '\n')
+	while (inputChar != '\n')
 	{
 		getyx(stdscr, cy, cx);
-		switch (input = getch())
+		switch (inputChar = getch())
 		{
 			case KEY_LEFT:
 				if (cx > offset)
@@ -116,41 +124,46 @@ void getCommand(int *stop)
 			case KEY_DOWN:
 				break;
 			case '\t':
-				if (!tabKeystroke)
+				if (!acData.tabKeystroke)
 				{
-					variants = autocomplete(cmd, autocompBuff, tabKeystroke);
-					if (variants == 1)
+					autocomplete(cmd, &acData);
+					if (acData.variants == 1)
 					{
-						strcpy(cmd, autocompBuff[0]);
+						strcpy(cmd, acData.buffer[0]);
 						redrawInput(cy, offset + strlen(cmd), offset, cmd);
 					}
 					else
-						tabKeystroke = 1;
+						acData.tabKeystroke = 1;
 				}
 				else
 				{
-					for (int i = 0; i < variants; i++)
-						mvprintw(cy + i + 1, 0, "%s", autocompBuff[i]);
-					mvprintw(cy + variants + 1, 0, "%s@MPIT:%s$ ", username, DIR_CURR.name);
-					redrawInput(cy + variants + 1, offset + strlen(cmd), offset, cmd);
+					for (int i = 0; i < acData.variants; i++)
+					{
+						printw("\n");
+						getyx(stdscr, cy, cx);
+						mvprintw(cy , 0, "%s", acData.buffer[i]);
+					}
+					mvprintw(cy + 1, 0, "%s@MPIT:%s$ ", username, DIR_CURR.name);
+					redrawInput(cy + 1, offset + strlen(cmd), offset, cmd);
 				}
 				break;
 			case '\n':
-				tabKeystroke = 0;
+				printw("\n");
+				acData.tabKeystroke = 0;
 				break;
 			default:
 				memmove(cmd + CURS_POS + 1, cmd + CURS_POS, strlen(cmd) - cx + offset);
-				cmd[CURS_POS] = input;
+				cmd[CURS_POS] = inputChar;
 				redrawInput(cy, cx, offset, cmd);
 				move(cy, cx + 1);
-				tabKeystroke = 0;
+				acData.tabKeystroke = 0;
 				break;
 		}
 	}
 	#undef CURS_POS
 	curs_set(0);
+	//Move for next char
 	getyx(stdscr, cy, cx);
-	move(cy + 1, 0);
 	if ((strcmp(cmd, "quit") == 0) || (strcmp(cmd, "exit") == 0))
 	{
 		*stop = 1;
@@ -175,24 +188,20 @@ void parseCommand(char *input)
 		printw("Command unknown or forbidden.\n");
 }
 
-uint16_t autocomplete(char *cmd, char buff[][MAX_INPUT_LENGTH], uint8_t tabKeystroke) // Returns number of variants
+void autocomplete(char *cmd, autocompletionData_t* acData)
 {
-	extern uint16_t numofCommands;
-	extern cmd_t cmds[];
-	uint16_t variants = 0;
 	// Clear buffer
 	for (int i = 0; i < MAX_SIZE_OF_AUTOCOMPLETE_BUFFER; i++)
-		buff[i][0] = 0;
+		acData -> buffer[i][0] = 0;
+	acData -> variants = 0;
 	// Search for commands
 	for (int i = 0; i < NUM_OF_CMDS; i++)
 		if (strstr(cmds[i].name, cmd) == cmds[i].name)
 		{
-			sprintf(buff[variants], "%s ", cmds[i].name);
-			variants++;
+			sprintf(acData -> buffer[acData -> variants], "%s ", cmds[i].name);
+			acData -> variants++;
 		}
-	// Search for files
-	// WOULD BE LATER
-	return variants;
+	// TODO: search for files
 }
 
 void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd)

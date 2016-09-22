@@ -22,10 +22,10 @@ install:
 	mkdir $(DATA) $(FILESYS) $(SAVES)
 	cp bootlogo $(DATA)
 	cp -r filesystem/* $(FILESYS)
-	chmod -R o+w $(DATA)
+	chmod -R o+rw $(DATA)
 	@echo 'Nice, now you can play mpit'
 
 uninstall:
 	rm $(BIN)/$(TARGET)
-	rm -rf $(DATA)
+	rm -r $(DATA)
 	@echo 'Uninstalled :^('
