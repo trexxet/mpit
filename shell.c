@@ -14,6 +14,7 @@ uint8_t stop;				// Stop signal
 extern playerData_t playerData;		// Player data
 extern gfile_t gfTable[];		// Filetable
 int exists(char *name, uint16_t *id);	// If %name% exists, returns 1 and id, otherwise returns 0
+char *args;				// Arguments for command
 #include "commands/include_cmds.h"
 
 cmd_t cmds[NUM_OF_CMDS];
@@ -74,8 +75,16 @@ typedef struct
 	uint16_t variants;
 } autocompletionData_t;
 
+typedef struct
+{
+	// Current position in history list
+	uint16_t historyPos;
+	// List
+	char list[MAX_SIZE_OF_HISTORY_LIST][MAX_INPUT_LENGTH];
+} historyData_t;
+
 void parseCommand(char *input);
-void autocomplete(char *cmd, autocompletionData_t* acData);
+void tryAutocomplete(char *cmd, autocompletionData_t* acData);
 void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd);
 
 void getCommand()
@@ -84,6 +93,7 @@ void getCommand()
 	noecho();
 	printw("%s@MPIT:%s$ ", username, DIR_CURR.name);
 
+	// cx, cy - position of cursor
 	uint16_t cy, cx, offset = 8 + strlen(username) + strlen(DIR_CURR.name);	//8 == strlen("@MPIT:$ ")
 	int inputChar = 0;			// inputChar = getch()
 	char cmd[MAX_INPUT_LENGTH] = {};	// input string
@@ -91,7 +101,7 @@ void getCommand()
 
 	curs_set(1);
 	// Getting char
-	#define CURS_POS (cx - offset)
+	#define CURS_POS (cx - offset) 		// position of cursor in input
 	while (inputChar != '\n')
 	{
 		getyx(stdscr, cy, cx);
@@ -127,7 +137,7 @@ void getCommand()
 			case '\t':
 				if (!acData.tabKeystroke)
 				{
-					autocomplete(cmd, &acData);
+					tryAutocomplete(cmd, &acData);
 					// if there is only one mathing variant, then apply it
 					if (acData.variants == 1)
 					{
@@ -143,17 +153,17 @@ void getCommand()
 				{
 					for (int i = 0; i < acData.variants; i++)
 					{
-						printw("\n");
+						addch('\n');
 						getyx(stdscr, cy, cx);
 						mvprintw(cy , 0, "%s", acData.buffer[i]);
 					}
-					printw("\n");
+					addch('\n');
 					mvprintw(cy, 0, "%s@MPIT:%s$ ", username, DIR_CURR.name);
 					redrawInput(cy, offset + strlen(cmd), offset, cmd);
 				}
 				break;
 			case '\n':
-				printw("\n");
+				addch('\n');
 				acData.tabKeystroke = 0;
 				break;
 			default:
@@ -174,7 +184,7 @@ void getCommand()
 void parseCommand(char *input)
 {
 	uint8_t cmdFound = 0;
-	char *cmd = strtok(input, " ");
+	char *cmd = strtok_r(input, " ", &args);
 	for (int i = 0; i < NUM_OF_CMDS; i++)
 		if (strcmp(cmd, cmds[i].name) == 0)
 		{
@@ -186,7 +196,7 @@ void parseCommand(char *input)
 		printw("Command unknown or forbidden.\n");
 }
 
-void autocomplete(char *cmd, autocompletionData_t* acData)
+void tryAutocomplete(char *cmd, autocompletionData_t* acData)
 {
 	// Clear buffer
 	for (int i = 0; i < MAX_SIZE_OF_AUTOCOMPLETE_BUFFER; i++)
@@ -209,3 +219,5 @@ void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd)
 	mvprintw(cy, offset, "%s", cmd);
 	move(cy, cx);
 }
+
+// HISTORY FUNCTIONS
