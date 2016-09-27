@@ -13,8 +13,8 @@ uint8_t stop;				// Stop signal
 #define DIR_CURR gfTable[playerData.dir]
 extern playerData_t playerData;		// Player data
 extern gfile_t gfTable[];		// Filetable
-int exists(char *name, uint16_t *id);	// If %name% exists, returns 1 and id, otherwise returns 0
-char *args;				// Arguments for command
+int exists(char* name, uint16_t* id);	// If %name% exists, returns 1 and id, otherwise returns 0
+char* args;				// Arguments for command
 #include "commands/include_cmds.h"
 
 cmd_t cmds[NUM_OF_CMDS];
@@ -24,7 +24,7 @@ void initShell()
 	#include "commands/init_list.c"
 }
 
-int exists(char *name, uint16_t *id)	//if %name% exists, returns 1 and id, otherwise returns 0
+int exists(char* name, uint16_t* id)	//if %name% exists, returns 1 and id, otherwise returns 0
 {
 	#define DIR_SEARCH gfTable[searchDirID]
 	int16_t searchDirID = playerData.dir;
@@ -77,27 +77,36 @@ typedef struct
 
 typedef struct
 {
-	// Current position in history list
-	uint16_t historyPos;
+	// Current position for writing in history list
+	uint16_t wpos;
+	// Current position for searching in history list
+	uint16_t pos;
 	// List
 	char list[MAX_SIZE_OF_HISTORY_LIST][MAX_INPUT_LENGTH];
 } historyData_t;
 
-void parseCommand(char *input);
-void tryAutocomplete(char *cmd, autocompletionData_t* acData);
+void parseCommand(char* input);
+void tryAutocomplete(char* cmd, autocompletionData_t* acData);
 void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd);
+
+void histAdd(char* cmd, historyData_t* histData);
+uint16_t histGoUp(historyData_t* histData);
+uint16_t histGoDown(historyData_t* histData);
 
 void getCommand()
 {
 	extern char username[];
-	noecho();
-	printw("%s@MPIT:%s$ ", username, DIR_CURR.name);
+	char prompt[MAX_PROMPT_LEN];
+	sprintf(prompt, "%s@%s:%s$ ", username, HOSTNAME, DIR_CURR.name);
+	uint16_t offset = strlen(prompt);
+	printw("%s", prompt);
 
 	// cx, cy - position of cursor
-	uint16_t cy, cx, offset = 8 + strlen(username) + strlen(DIR_CURR.name);	//8 == strlen("@MPIT:$ ")
+	uint16_t cy, cx;
 	int inputChar = 0;			// inputChar = getch()
 	char cmd[MAX_INPUT_LENGTH] = {};	// input string
 	autocompletionData_t acData = {};
+	static historyData_t histData = {};
 
 	curs_set(1);
 	// Getting char
@@ -131,8 +140,12 @@ void getCommand()
 				}
 				break;
 			case KEY_UP:
+				strcpy(cmd, histData.list[histGoUp(&histData)]);
+				redrawInput(cy, offset + strlen(cmd), offset, cmd);
 				break;
 			case KEY_DOWN:
+				strcpy(cmd, histData.list[histGoDown(&histData)]);
+				redrawInput(cy, offset + strlen(cmd), offset, cmd);
 				break;
 			case '\t':
 				if (!acData.tabKeystroke)
@@ -158,11 +171,17 @@ void getCommand()
 						mvprintw(cy , 0, "%s", acData.buffer[i]);
 					}
 					addch('\n');
-					mvprintw(cy, 0, "%s@MPIT:%s$ ", username, DIR_CURR.name);
+					getyx(stdscr, cy, cx);
+					mvprintw(cy, 0, "%s", prompt);
 					redrawInput(cy, offset + strlen(cmd), offset, cmd);
 				}
 				break;
 			case '\n':
+				if (cmd[0] != 0)
+				{
+					histAdd(cmd, &histData);
+					histData.pos = histData.wpos;
+				}
 				addch('\n');
 				acData.tabKeystroke = 0;
 				break;
@@ -181,10 +200,10 @@ void getCommand()
 		parseCommand(cmd);
 }
 
-void parseCommand(char *input)
+void parseCommand(char* input)
 {
 	uint8_t cmdFound = 0;
-	char *cmd = strtok_r(input, " ", &args);
+	char* cmd = strtok_r(input, " ", &args);
 	for (int i = 0; i < NUM_OF_CMDS; i++)
 		if (strcmp(cmd, cmds[i].name) == 0)
 		{
@@ -196,7 +215,7 @@ void parseCommand(char *input)
 		printw("Command unknown or forbidden.\n");
 }
 
-void tryAutocomplete(char *cmd, autocompletionData_t* acData)
+void tryAutocomplete(char* cmd, autocompletionData_t* acData)
 {
 	// Clear buffer
 	for (int i = 0; i < MAX_SIZE_OF_AUTOCOMPLETE_BUFFER; i++)
@@ -212,7 +231,7 @@ void tryAutocomplete(char *cmd, autocompletionData_t* acData)
 	// TODO: search for files
 }
 
-void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd)
+void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char* cmd)
 {
 	move(cy, offset);
 	clrtoeol();
@@ -221,3 +240,21 @@ void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd)
 }
 
 // HISTORY FUNCTIONS
+
+//TODO: empty string at the top of search; limit search range; fix bug with ghost symbols
+
+void histAdd(char* cmd, historyData_t* histData)
+{
+	strcpy(histData -> list[histData -> wpos], cmd);
+	histData -> wpos < MAX_SIZE_OF_HISTORY_LIST - 1 ? (histData -> wpos)++ : (histData -> wpos = 0);
+}
+
+uint16_t histGoUp(historyData_t* histData)
+{
+	return histData -> pos > 0 ? --(histData -> pos) : (histData -> pos = MAX_SIZE_OF_HISTORY_LIST - 1);
+}
+
+uint16_t histGoDown(historyData_t* histData)
+{
+	return histData -> pos < MAX_SIZE_OF_HISTORY_LIST - 1 ? ++(histData -> pos) : (histData -> pos = 0);
+}

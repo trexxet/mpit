@@ -1,10 +1,13 @@
 CURRENT DEVELOPMENT:
-Commands history by up/down arrows
+commands history by up/down arrows
+improved autocompletion
+more commands
 aliases
 make code look like modern C code
 
 IMPORTANT BUGS:
 ../ returns to root
+ghost symbols when using commands history
 
 MINOR BUGS:
 didn't notice
