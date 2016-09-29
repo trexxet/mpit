@@ -1,9 +1,6 @@
 #include <wchar.h>
 #include "global.h"
 
-extern void loadSavedData();
-extern void saveData();
-
 void boot()
 {
 	const static char *onloadMsg[] = {
@@ -45,11 +42,7 @@ void createNewUser()
 
 void login()
 {
-	extern playerData_t playerData;
 	extern char username[];
-	extern char savefileName[];
-
-
 	_BOLD(printw("Welcome to the MPIT Systems!\n"));
 	printw("Please sign in.\nLogin: ");
 	_CURS_ON();
@@ -60,9 +53,15 @@ void login()
 
 
 	char strtime[32];
-	sprintf(savefileName, "%s%s%s%s", DATA_DIR, SAVES_DIR, username, ".save");
-	FILE *savefile = fopen(savefileName, "rb");
-	if (!savefile)
+	extern char saveFileName[];
+	sprintf(saveFileName, "%s%s%s%s", DATA_DIR, SAVES_DIR, username, ".save");
+	extern char histFileName[];
+	sprintf(histFileName, "%s%s%s%s", DATA_DIR, SAVES_DIR, username, ".hist");
+	extern playerData_t playerData;
+	extern void loadSavedData();
+	extern void loadHistory();
+	FILE *saveFile = fopen(saveFileName, "rb");
+	if (!saveFile)
 	{
 		printw("Last login: NULL\n\n");
 		createNewUser();
@@ -70,6 +69,7 @@ void login()
 	else
 	{
 		loadSavedData();
+		loadHistory();
 		strftime(strtime, 32, "%Y-%m-%d %H:%M:%S", localtime(&(playerData.lastLoggedTime)));
 		printw("Last login: %s\n\n", strtime);
 	}
@@ -77,6 +77,7 @@ void login()
 	time_t timer;
 	time(&timer);
 	playerData.lastLoggedTime = timer;
+	extern void saveData();
 	saveData();
 	_sleep(500);
 }

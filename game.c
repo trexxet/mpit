@@ -1,33 +1,61 @@
 #include "global.h"
 
 playerData_t playerData;
+historyData_t histData;
 char username[256];
-char savefileName[256];
+char saveFileName[256];
+char histFileName[256];
 
 void loadSavedData()
 {
-	FILE *file = fopen(savefileName, "rb");
-	if (file)
+	FILE* saveFile = fopen(saveFileName, "rb");
+	if (saveFile)
 	{
-		fread(&playerData, sizeof(playerData_t), 1, file);
-		fclose(file);
+		fread(&playerData, sizeof(playerData_t), 1, saveFile);
+		fclose(saveFile);
 	}
 	else
 		printw("External error in loadSavedData():\n%s\n", strerror(errno));
-	file = NULL;
+	saveFile = NULL;
 }
 
 void saveData()
 {
-	FILE *file = fopen(savefileName, "wb");
-	if (file)
+	FILE* saveFile = fopen(saveFileName, "wb");
+	if (saveFile)
 	{
-		fwrite(&playerData, sizeof(playerData_t), 1, file);
-		fclose(file);
+		fwrite(&playerData, sizeof(playerData_t), 1, saveFile);
+		fclose(saveFile);
 	}
 	else
 		printw("External error in saveData():\n%s\n", strerror(errno));
-	file = NULL;
+	saveFile = NULL;
+}
+
+void loadHistory()
+{
+	FILE* histFile = fopen(histFileName, "rb");
+	if (histFile)
+	{
+		fread(&histData, sizeof(historyData_t), 1, histFile);
+		fclose(histFile);
+	}
+	else
+		printw("External error in loadHistory():\n%s\n", strerror(errno));
+	histFile = NULL;
+}
+
+void saveHistory()
+{
+	FILE* histFile = fopen(histFileName, "wb");
+	if (histFile)
+	{
+		fwrite(&histData, sizeof(historyData_t), 1, histFile);
+		fclose(histFile);
+	}
+	else
+		printw("External error in saveHistory():\n%s\n", strerror(errno));
+	histFile = NULL;
 }
 
 void gameStart()
@@ -45,4 +73,5 @@ void gameStart()
 	extern void getCommand();
 	while (!stop)
 		getCommand();
+	saveHistory();
 }

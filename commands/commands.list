@@ -3,3 +3,4 @@ cd
 echo
 ls
 quit
+whoami

@@ -8,3 +8,5 @@ strcpy(cmds[3].name, "ls");
 cmds[3].func = &_ls;
 strcpy(cmds[4].name, "quit");
 cmds[4].func = &_quit;
+strcpy(cmds[5].name, "whoami");
+cmds[5].func = &_whoami;

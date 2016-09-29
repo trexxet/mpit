@@ -25,3 +25,13 @@ typedef struct {
 	uint16_t dir;
 	uint8_t stage;
 } playerData_t;
+
+typedef struct
+{
+	// Current position for writing in history list
+	uint16_t wpos;
+	// Current position for searching in history list
+	uint16_t pos;
+	// List
+	char list[MAX_SIZE_OF_HISTORY_LIST][MAX_INPUT_LENGTH];
+} historyData_t;

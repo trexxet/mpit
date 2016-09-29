@@ -10,6 +10,7 @@ typedef struct {
 
 //Commands interface
 uint8_t stop;				// Stop signal
+extern char username[];			// Username
 #define DIR_CURR gfTable[playerData.dir]
 extern playerData_t playerData;		// Player data
 extern gfile_t gfTable[];		// Filetable
@@ -75,27 +76,17 @@ typedef struct
 	uint16_t variants;
 } autocompletionData_t;
 
-typedef struct
-{
-	// Current position for writing in history list
-	uint16_t wpos;
-	// Current position for searching in history list
-	uint16_t pos;
-	// List
-	char list[MAX_SIZE_OF_HISTORY_LIST][MAX_INPUT_LENGTH];
-} historyData_t;
-
 void parseCommand(char* input);
 void tryAutocomplete(char* cmd, autocompletionData_t* acData);
 void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char *cmd);
 
-void histAdd(char* cmd, historyData_t* histData);
-uint16_t histGoUp(historyData_t* histData);
-uint16_t histGoDown(historyData_t* histData);
+extern historyData_t histData;
+void histAdd(char* cmd);
+uint16_t histGoUp();
+uint16_t histGoDown();
 
 void getCommand()
 {
-	extern char username[];
 	char prompt[MAX_PROMPT_LEN];
 	sprintf(prompt, "%s@%s:%s$ ", username, HOSTNAME, DIR_CURR.name);
 	uint16_t offset = strlen(prompt);
@@ -106,7 +97,6 @@ void getCommand()
 	int inputChar = 0;			// inputChar = getch()
 	char cmd[MAX_INPUT_LENGTH] = {};	// input string
 	autocompletionData_t acData = {};
-	static historyData_t histData = {};
 
 	curs_set(1);
 	// Getting char
@@ -147,14 +137,14 @@ void getCommand()
 			case KEY_UP:
 				// Clear cmd to prevent ghost symbols
 				for (int i = 0; i < MAX_INPUT_LENGTH; cmd[i++] = 0);
-				strcpy(cmd, histData.list[histGoUp(&histData)]);
+				strcpy(cmd, histData.list[histGoUp()]);
 				redrawInput(cy, offset + strlen(cmd), offset, cmd);
 				break;
 			// Down arrow key
 			case KEY_DOWN:
 				// Clear cmd to prevent ghost symblos
 				for (int i = 0; i < MAX_INPUT_LENGTH; cmd[i++] = 0);
-				strcpy(cmd, histData.list[histGoDown(&histData)]);
+				strcpy(cmd, histData.list[histGoDown()]);
 				redrawInput(cy, offset + strlen(cmd), offset, cmd);
 				break;
 			// Tab key
@@ -191,7 +181,7 @@ void getCommand()
 			case '\n':
 				if (cmd[0])
 				{
-					histAdd(cmd, &histData);
+					histAdd(cmd);
 					histData.pos = histData.wpos;
 					histData.list[histData.pos][0] = 0;
 				}
@@ -254,20 +244,18 @@ void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char* cmd)
 
 // HISTORY FUNCTIONS
 
-// TODO: store history in file
-
-void histAdd(char* cmd, historyData_t* histData)
+void histAdd(char* cmd)
 {
-	strcpy(histData -> list[histData -> wpos], cmd);
-	histData -> wpos < MAX_SIZE_OF_HISTORY_LIST - 1 ? (histData -> wpos)++ : (histData -> wpos = 0);
+	strcpy(histData.list[histData.wpos], cmd);
+	histData.wpos < MAX_SIZE_OF_HISTORY_LIST - 1 ? (histData.wpos)++ : (histData.wpos = 0);
 }
 
-uint16_t histGoUp(historyData_t* histData)
+uint16_t histGoUp()
 {
-	return histData -> pos > 0 ? --(histData -> pos) : (histData -> pos = MAX_SIZE_OF_HISTORY_LIST - 1);
+	return histData.pos > 0 ? --(histData.pos) : (histData.pos = MAX_SIZE_OF_HISTORY_LIST - 1);
 }
 
-uint16_t histGoDown(historyData_t* histData)
+uint16_t histGoDown()
 {
-	return histData -> pos < MAX_SIZE_OF_HISTORY_LIST - 1 ? ++(histData -> pos) : (histData -> pos = 0);
+	return histData.pos < MAX_SIZE_OF_HISTORY_LIST - 1 ? ++(histData.pos) : (histData.pos = 0);
 }
