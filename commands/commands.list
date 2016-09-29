@@ -1,4 +1,5 @@
 cat
 cd
+echo
 ls
 quit

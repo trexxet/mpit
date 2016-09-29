@@ -1,8 +1,10 @@
 strcpy(cmds[0].name, "cat");
-cmds[0].func = &cat;
+cmds[0].func = &_cat;
 strcpy(cmds[1].name, "cd");
-cmds[1].func = &cd;
-strcpy(cmds[2].name, "ls");
-cmds[2].func = &ls;
-strcpy(cmds[3].name, "quit");
-cmds[3].func = &quit;
+cmds[1].func = &_cd;
+strcpy(cmds[2].name, "echo");
+cmds[2].func = &_echo;
+strcpy(cmds[3].name, "ls");
+cmds[3].func = &_ls;
+strcpy(cmds[4].name, "quit");
+cmds[4].func = &_quit;

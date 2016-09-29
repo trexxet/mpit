@@ -1,4 +1,4 @@
-void ls()
+void _ls()
 {
 	for (int i = 0; i < DIR_CURR.childnum; i++)
 	{

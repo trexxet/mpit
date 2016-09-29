@@ -1,5 +1,5 @@
 CURRENT DEVELOPMENT:
-commands history by up/down arrows
+improved history
 improved autocompletion
 more commands
 aliases
@@ -7,7 +7,7 @@ make code look like modern C code
 
 IMPORTANT BUGS:
 ../ returns to root
-ghost symbols when using commands history
+crashes at 'echo -n'
 
 MINOR BUGS:
 didn't notice

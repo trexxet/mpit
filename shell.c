@@ -116,19 +116,23 @@ void getCommand()
 		getyx(stdscr, cy, cx);
 		switch (inputChar = getch())
 		{
+			// Left arrow key
 			case KEY_LEFT:
 				if (cx > offset)
 					move(cy, cx - 1);
 				break;
+			// Right arrow key
 			case KEY_RIGHT:
 				if (cx < (offset + strlen(cmd)))
 					move(cy, cx + 1);
 				break;
+			// Delete
 			case KEY_DC:
 				delch();
 				memmove(cmd + CURS_POS, cmd + CURS_POS + 1, strlen(cmd) - CURS_POS);
 				redrawInput(cy, cx, offset, cmd);
 				break;
+			// Backspace
 			case KEY_BACKSPACE:
 				if (cx > offset)
 				{
@@ -139,14 +143,21 @@ void getCommand()
 					move(cy, cx - 1);
 				}
 				break;
+			// Up arrow key
 			case KEY_UP:
+				// Clear cmd to prevent ghost symbols
+				for (int i = 0; i < MAX_INPUT_LENGTH; cmd[i++] = 0);
 				strcpy(cmd, histData.list[histGoUp(&histData)]);
 				redrawInput(cy, offset + strlen(cmd), offset, cmd);
 				break;
+			// Down arrow key
 			case KEY_DOWN:
+				// Clear cmd to prevent ghost symblos
+				for (int i = 0; i < MAX_INPUT_LENGTH; cmd[i++] = 0);
 				strcpy(cmd, histData.list[histGoDown(&histData)]);
 				redrawInput(cy, offset + strlen(cmd), offset, cmd);
 				break;
+			// Tab key
 			case '\t':
 				if (!acData.tabKeystroke)
 				{
@@ -176,15 +187,18 @@ void getCommand()
 					redrawInput(cy, offset + strlen(cmd), offset, cmd);
 				}
 				break;
+			// Enter key
 			case '\n':
-				if (cmd[0] != 0)
+				if (cmd[0])
 				{
 					histAdd(cmd, &histData);
 					histData.pos = histData.wpos;
+					histData.list[histData.pos][0] = 0;
 				}
 				addch('\n');
 				acData.tabKeystroke = 0;
 				break;
+			// Other keys
 			default:
 				memmove(cmd + CURS_POS + 1, cmd + CURS_POS, strlen(cmd) - cx + offset);
 				cmd[CURS_POS] = inputChar;
@@ -196,7 +210,7 @@ void getCommand()
 	}
 	#undef CURS_POS
 	curs_set(0);
-	if (cmd[0] != 0)
+	if (cmd[0])
 		parseCommand(cmd);
 }
 
@@ -211,15 +225,14 @@ void parseCommand(char* input)
 			cmdFound = 1;
 			break;
 		}
-	if (cmdFound == 0)
+	if (!cmdFound)
 		printw("Command unknown or forbidden.\n");
 }
 
 void tryAutocomplete(char* cmd, autocompletionData_t* acData)
 {
 	// Clear buffer
-	for (int i = 0; i < MAX_SIZE_OF_AUTOCOMPLETE_BUFFER; i++)
-		acData -> buffer[i][0] = 0;
+	for (int i = 0; i < MAX_SIZE_OF_AUTOCOMPLETE_BUFFER; acData -> buffer[i++][0] = 0);
 	acData -> variants = 0;
 	// Search for commands
 	for (int i = 0; i < NUM_OF_CMDS; i++)
@@ -241,7 +254,7 @@ void redrawInput(uint16_t cy, uint16_t cx, uint16_t offset, char* cmd)
 
 // HISTORY FUNCTIONS
 
-//TODO: empty string at the top of search; limit search range; fix bug with ghost symbols
+// TODO: store history in file
 
 void histAdd(char* cmd, historyData_t* histData)
 {
