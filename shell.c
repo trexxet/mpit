@@ -11,14 +11,13 @@ typedef struct {
 //Commands interface
 uint8_t stop;				// Stop signal
 extern char username[];			// Username
-#define DIR_CURR gfTable[playerData.dir]
 extern playerData_t playerData;		// Player data
 extern gfile_t gfTable[];		// Filetable
+#define DIR_CURR gfTable[playerData.dir]
 int exists(char* name, uint16_t* id);	// If %name% exists, returns 1 and id, otherwise returns 0
 char* args;				// Arguments for command
+// cmd_t cmds[NUM_OF_CMDS] is declared in include_cmds.h
 #include "commands/include_cmds.h"
-
-cmd_t cmds[NUM_OF_CMDS];
 
 void initShell()
 {

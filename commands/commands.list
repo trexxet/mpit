@@ -1,6 +1,8 @@
 cat
 cd
 echo
+help
 ls
+pwd
 quit
 whoami

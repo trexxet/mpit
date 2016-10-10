@@ -1,4 +1,5 @@
 CURRENT DEVELOPMENT:
+make prompt call pwd
 improved history
 improved autocompletion
 more commands
@@ -6,8 +7,9 @@ aliases
 make code look like modern C code
 
 IMPORTANT BUGS:
-../ returns to root
-crashes at 'echo -n'
+cd ../ returns to root
+crashes when prompt doesn't begin from beginning of line (e.g. 'echo -n')
+cannot cd into /
 
 MINOR BUGS:
 didn't notice
